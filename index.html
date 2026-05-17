@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOodleDO</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6b8cff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DOodleDO">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Space+Mono:wght@400;700&family=Outfit:wght@400;600;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <canvas id="vibe-canvas"></canvas>
+  <div class="vibe-overlay" id="vibe-overlay"></div>
+
+  <div id="app">
+
+    <!-- ══ TOPBAR ══ -->
+    <header id="topbar">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg viewBox="0 0 100 100" style="width:40px;height:40px;">
+            <!-- Notepad -->
+            <rect x="20" y="20" width="60" height="70" rx="8" fill="#d0e1ff" />
+            <path d="M20 35h60" stroke="#a0c4ff" stroke-width="2" />
+            <path d="M20 50h60" stroke="#a0c4ff" stroke-width="2" />
+            <path d="M20 65h60" stroke="#a0c4ff" stroke-width="2" />
+            <!-- Spiral -->
+            <circle cx="30" cy="20" r="3" fill="#a0c4ff" />
+            <circle cx="50" cy="20" r="3" fill="#a0c4ff" />
+            <circle cx="70" cy="20" r="3" fill="#a0c4ff" />
+            <!-- Pencil -->
+            <g transform="rotate(45, 75, 45)">
+              <rect x="65" y="30" width="8" height="40" fill="#fca311" />
+              <path d="M65 30l4-8 4 8h-8z" fill="#ffcc00" />
+            </g>
+            <!-- Checkmark Circle -->
+            <circle cx="75" cy="80" r="12" fill="#00c896" />
+            <path d="M69 80l4 4 8-8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="logo-text-wrap">
+          <div class="logo-main-text">DOodle<span>DO</span></div>
+          <div class="logo-sub-text">TO-DO · STUDY PLANNER</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="xp-badge">
+        <span class="xp-flame">🔥</span>
+        <span id="streak-count">0</span>
+        <span style="color:var(--text3);font-size:10px;font-weight:400"> streak</span>
+        &nbsp;·&nbsp;
+        <span id="xp-total" style="font-family:'Space Mono',monospace">0</span>
+        <span style="color:var(--text3);font-size:10px;font-weight:400"> xp</span>
+      </div>
+      <div class="live-wave paused" id="top-wave" style="margin:0 4px;">
+        <div class="wv"></div>
+        <div class="wv"></div>
+        <div class="wv"></div>
+        <div class="wv"></div>
+        <div class="wv"></div>
+      </div>
+      <button class="mode-toggle" id="mode-toggle" onclick="toggleLayoutMode()">
+        <span class="mode-icon">🎯</span>
+        <span class="mode-text">Plan Mode</span>
+      </button>
+      <button class="top-icon" id="fullscreen-toggle" title="Fullscreen" onclick="toggleFullscreen()" aria-label="Toggle Fullscreen">⛶</button>
+      <button class="top-icon" title="Brightness" onclick="toggleDim()" aria-label="Toggle Dim Mode">☀</button>
+      <button class="top-icon" id="vol-toggle" title="Sound" onclick="toggleMusicPlay()" aria-label="Toggle Sound">🔊</button>
+      <div class="avatar" id="avatar">YO</div>
+    </header>
+
+    <!-- ══ VIBE SIDEBAR ══ -->
+    <nav id="vibe-sidebar">
+      <div class="sidebar-label">Choose Your Vibe</div>
+      <div id="vibe-list"></div>
+      <div class="vibe-divider"></div>
+      <button class="create-vibe-btn" onclick="openCreateVibeModal()">
+        <span style="font-size:16px">＋</span>
+        <span>Create Your Vibe</span>
+      </button>
+    </nav>
+
+    <!-- ══ CENTER ══ -->
+    <main id="center">
+      <div class="clock-wrap">
+        <div class="clock-time" id="clock">00:00</div>
+        <div class="clock-date" id="clock-date">—</div>
+      </div>
+
+      <div class="quote-card" id="quote-card">
+        <div class="quote-actions">
+          <button class="q-act-btn" onclick="openQuoteManager()" title="Manage Quotes">＋</button>
+          <button class="q-act-btn" onclick="rotateQuote()" title="Next Quote">⏭</button>
+        </div>
+        <span class="quote-mark">"</span>
+        <div class="quote-text" id="quote-text">The focus you have today will build the life you want tomorrow.</div>
+        <div class="quote-author" id="quote-author">— Study Wisdom</div>
+        <div class="quote-dots" id="quote-dots"></div>
+      </div>
+
+      <div class="stats-strip">
+        <div class="stat-chip">
+          <div class="stat-val" id="s-sessions">0</div>
+          <div class="stat-lbl">Sessions</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val" id="s-tasks">0</div>
+          <div class="stat-lbl">Done</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val" id="s-focus">0m</div>
+          <div class="stat-lbl">Focus</div>
+        </div>
+      </div>
+
+      <div class="pomo-card">
+        <div class="pomo-tabs">
+          <button class="pomo-tab active" data-m="focus" onclick="setPomoMode('focus',this)">Pomodoro</button>
+          <button class="pomo-tab" data-m="short" onclick="setPomoMode('short',this)">Short Break</button>
+          <button class="pomo-tab" data-m="long" onclick="setPomoMode('long',this)">Long Break</button>
+        </div>
+
+        <div class="pomo-timer-row">
+          <div class="pomo-ring-wrap">
+            <svg id="pomo-svg" width="120" height="120" viewBox="0 0 120 120">
+              <circle id="pomo-track" cx="60" cy="60" r="55" />
+              <circle id="pomo-prog" cx="60" cy="60" r="55" />
+            </svg>
+            <div class="pomo-center">
+              <div class="pomo-time" id="pomo-display">25:00</div>
+              <div class="pomo-mode-lbl" id="pomo-mode-lbl">Focus</div>
+            </div>
+          </div>
+
+          <div class="pomo-info">
+            <div class="focusing-label">Focusing on</div>
+            <div class="focusing-task" id="focus-task-display">
+              <span class="focusing-task-hint">← Click a task to focus</span>
+            </div>
+            <div class="focus-progress" id="focus-progress" style="display:none">
+              <div class="fp-label"><span id="fp-done-lbl">0 / 0 sessions</span><span id="fp-pct">0%</span></div>
+              <div class="fp-bar">
+                <div class="fp-fill" id="fp-fill" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="pomo-dots" id="pomo-dots">
+              <div class="pomo-dot"></div>
+              <div class="pomo-dot"></div>
+              <div class="pomo-dot"></div>
+              <div class="pomo-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pomo-controls">
+          <button class="pctrl" onclick="resetPomo()" title="Reset" aria-label="Reset Timer">
+            <svg viewBox="0 0 24 24">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+            </svg>
+          </button>
+          <button class="play-main" id="play-main-btn" onclick="togglePomo()" aria-label="Start/Stop Timer">
+            <svg class="pi" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <svg class="pa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+              <rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+          <button class="pctrl" onclick="skipPomo()" title="Skip" aria-label="Skip Session">
+            <svg viewBox="0 0 24 24">
+              <polyline points="5 4 15 12 5 20"></polyline>
+              <line x1="19" y1="4" x2="19" y2="20"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ══ RIGHT PLANNER ══ -->
+    <aside id="planner">
+      <div class="planner-tabs">
+        <button class="ptab active" onclick="showPanel('tasks',this)">📋 Tasks</button>
+        <button class="ptab" onclick="showPanel('schedule',this)">📅 Schedule</button>
+        <button class="ptab" onclick="showPanel('log',this)">📊 Log</button>
+      </div>
+
+      <!-- TASKS PANEL -->
+      <div class="panel-body" id="panel-tasks">
+        <button class="calendar-toggle-btn" onclick="toggleCalendar()">📅 Show Calendar</button>
+        <div id="calendar-wrap" class="calendar-wrap"></div>
+
+        <div class="task-input-row">
+          <input class="task-inp" id="task-input" placeholder="Add a task…"
+            onkeydown="if(event.key==='Enter')addTask()">
+          
+          <div class="custom-select" id="priority-custom">
+            <div class="select-selected" id="prio-selected" onclick="togglePriorityMenu()">Medium</div>
+            <div class="select-items select-hide" id="prio-options">
+              <div onclick="setPriority('low')">Low</div>
+              <div onclick="setPriority('medium')">Medium</div>
+              <div onclick="setPriority('high')">High</div>
+              <button class="select-done-btn" onclick="togglePriorityMenu()">Done</button>
+            </div>
+          </div>
+          <input type="hidden" id="task-priority" value="medium">
+          
+          <input type="date" id="task-duedate" class="task-inp task-date">
+          
+          <button class="tadd" onclick="addTask()">+ Add</button>
+        </div>
+        <div class="task-filters">
+          <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-pill" onclick="setFilter('active',this)">Active</button>
+          <button class="filter-pill" onclick="setFilter('done',this)">Done</button>
+          <button class="filter-pill" onclick="setFilter('study',this)">Study</button>
+          <button class="filter-pill" onclick="setFilter('code',this)">Code</button>
+        </div>
+        <div id="task-render"></div>
+      </div>
+
+      <!-- SCHEDULE PANEL -->
+      <div class="panel-body" id="panel-schedule" style="display:none">
+        <div class="schedule-date-row">
+          <button class="sched-nav" onclick="changeDay(-1)">‹</button>
+          <span class="sched-date-lbl" id="sched-date-lbl">Today</span>
+          <button class="sched-nav" onclick="changeDay(1)">›</button>
+        </div>
+        <div class="time-blocks" id="time-blocks"></div>
+      </div>
+
+      <!-- LOG PANEL -->
+      <div class="panel-body" id="panel-log" style="display:none">
+        <div class="log-list" id="log-list">
+          <div class="log-empty">No sessions yet.<br>Start your first Pomodoro! 🍅</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ══ MUSIC BAR ══ -->
+    <!-- ══ BOTTOM NAV (MOBILE ONLY) ══ -->
+    <nav id="mobile-nav">
+      <button class="m-tab active" onclick="switchMobileTab('vibes', this)">
+        <span class="m-icon">🎭</span>
+        <span class="m-label">Vibes</span>
+      </button>
+      <button class="m-tab" onclick="switchMobileTab('focus', this)">
+        <span class="m-icon">🧘</span>
+        <span class="m-label">Focus</span>
+      </button>
+      <button class="m-tab" onclick="switchMobileTab('plan', this)">
+        <span class="m-icon">🎯</span>
+        <span class="m-label">Plan</span>
+      </button>
+    </nav>
+
+    <footer id="music-bar">
+      <div class="music-track-info">
+        <div class="album-art" id="album-art">🎵</div>
+        <div class="track-name-wrap">
+          <div class="track-title" id="track-title">Select a vibe</div>
+          <div class="track-artist" id="track-artist">VibeRoom</div>
+        </div>
+        <button class="heart-btn" id="heart-btn" onclick="toggleHeart()">♡</button>
+      </div>
+
+      <div class="music-controls">
+        <div class="ctrl-row">
+          <button class="mc" title="Shuffle">
+            <svg viewBox="0 0 24 24">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+            </svg>
+          </button>
+          <button class="mc" onclick="prevMusicTrack()" aria-label="Previous Track">
+            <svg viewBox="0 0 24 24">
+              <polygon points="19 20 9 12 19 4 19 20"></polygon>
+              <line x1="5" y1="4" x2="5" y2="20"></line>
+            </svg>
+          </button>
+          <button class="mc-play" id="mc-play-btn" onclick="toggleMusicPlay()" aria-label="Play/Pause Music">
+            <svg class="mpi" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <svg class="mpa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+              <rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none" />
+            </svg>
+          </button>
+          <button class="mc" onclick="nextMusicTrack()" aria-label="Next Track">
+            <svg viewBox="0 0 24 24">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="4" x2="19" y2="20"></line>
+            </svg>
+          </button>
+          <button class="mc" title="Repeat">
+            <svg viewBox="0 0 24 24">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="progress-row">
+          <span class="prog-time" id="prog-current">0:00</span>
+          <div class="prog-bar-wrap" id="prog-bar" onclick="seekMusic(event)">
+            <div class="prog-bar-fill" id="prog-fill" style="width:0%"></div>
+            <div class="prog-bar-thumb" id="prog-thumb" style="left:0%"></div>
+          </div>
+          <span class="prog-time" id="prog-total">0:00</span>
+        </div>
+      </div>
+
+      <div class="music-right">
+        <span class="vol-icon">🔊</span>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="60"
+          oninput="setVolume(this.value)">
+        <button class="queue-btn" title="Queue" onclick="toggleQueue()">☰</button>
+      </div>
+
+      <div id="queue-panel">
+        <div class="queue-header">Current Vibe Tracks</div>
+        <div id="queue-list"></div>
+      </div>
+    </footer>
+
+  </div><!-- #app -->
+
+  <!-- FIX 7: Accessibility: Visually hidden H1 -->
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden">DOodleDO Study Planner</h1>
+
+  <div id="toast"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+
+</html>
