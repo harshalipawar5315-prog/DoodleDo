@@ -1,85 +1,109 @@
-// FIX 2: Modularise storage logic
-let state;
+const API = 'https://doodledo-backend.onrender.com';
 
-export function init(sharedState) {
-  state = sharedState;
+function getToken() {
+  return localStorage.getItem('token');
 }
 
-import { VIBES } from './vibe.js';
-
-export function saveData() {
-  const today = new Date().toISOString().split('T')[0];
-  const data = {
-    tasks: state.tasks,
-    xp: state.xp,
-    streak: state.streak,
-    focusMinutes: state.focusMinutes,
-    layoutMode: state.layoutMode,
-    sessions: state.pomo.sessions,
-    sessionLog: state.sessionLog,
-    customVibes: VIBES.filter(v => v.id.startsWith('custom-')),
-    quotes: state.quotes,
-    lastActiveDate: today
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
   };
-  localStorage.setItem('doodledo_vroom_data', JSON.stringify(data));
 }
 
-export function loadData() {
-  const saved = localStorage.getItem('doodledo_vroom_data');
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  
-  if (saved) {
+const storage = {
+  // Load all data from MongoDB into state
+  async loadData() {
     try {
-      const data = JSON.parse(saved);
-      state.tasks = (data.tasks || []).map(t => ({
-        id: t.id || 't-' + Math.random().toString(36).substr(2, 9),
-        ...t,
-        priority: t.priority || 'medium',
-        dueDate: t.dueDate || null
-      }));
-      state.xp = data.xp || 0;
-      state.streak = data.streak || 0;
-      state.focusMinutes = data.focusMinutes || 0;
-      state.pomo.sessions = data.sessions || 0;
-      state.sessionLog = data.sessionLog || [];
-      state.layoutMode = data.layoutMode || 'plan';
-      state.lastActiveDate = data.lastActiveDate || null;
-      state.quotes = data.quotes || null; // Will be initialized if null in main.js
-  
-      // FIX 9: Streak Logic
-      if (state.lastActiveDate) {
-        const lastDate = new Date(state.lastActiveDate);
-        const diffTime = Math.abs(today - lastDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (state.lastActiveDate !== todayStr) {
-          if (diffDays > 1) {
-            state.streak = 0; // Lost streak
-          }
-        }
+      // Load tasks
+      const res = await fetch(`${API}/api/tasks`, {
+        headers: authHeaders()
+      });
+      if (res.ok) {
+        const tasks = await res.json();
+        state.tasks = tasks.map(t => ({
+          id: t._id,
+          text: t.text,
+          priority: t.priority,
+          done: t.completed,
+          date: t.dueDate
+        }));
       }
-  
-      if (data.customVibes) {
-        data.customVibes.forEach(cv => {
-          if (!VIBES.find(v => v.id === cv.id)) VIBES.push(cv);
-        });
+
+      // Load stats
+      const statsRes = await fetch(`${API}/api/stats`, {
+        headers: authHeaders()
+      });
+      if (statsRes.ok) {
+        const stats = await statsRes.json();
+        state.xp = stats.xp || 0;
+        state.streak = stats.streak || 0;
+        state.lastActiveDate = stats.lastActiveDate || null;
       }
-    } catch (e) {
-      console.error("Error parsing saved data:", e);
-      // Fallback to defaults
-      state.tasks = [
-        { id: 't1', text: 'Read Chapter 5 — Data Structures', tag: 'Study', priority: 'high', dueDate: new Date().toISOString().split('T')[0], pomos: 3, donePomos: 1, done: false, focused: false, schedHour: 9 },
-        { id: 't2', text: 'Solve 10 LeetCode problems', tag: 'Code', priority: 'medium', dueDate: null, pomos: 4, donePomos: 0, done: false, focused: false, schedHour: 11 },
-        { id: 't3', text: 'Review flashcards (30 min)', tag: 'Study', priority: 'low', dueDate: null, pomos: 2, donePomos: 2, done: false, focused: false, schedHour: 13 },
-      ];
+    } catch (err) {
+      console.error('loadData failed:', err);
     }
-  } else {
-    // Default tasks if none exist
-    state.tasks = [
-      { id: 't1', text: 'Read Chapter 5 — Data Structures', tag: 'Study', priority: 'high', dueDate: new Date().toISOString().split('T')[0], pomos: 3, donePomos: 1, done: false, focused: false, schedHour: 9 },
-      { id: 't2', text: 'Solve 10 LeetCode problems', tag: 'Code', priority: 'medium', dueDate: null, pomos: 4, donePomos: 0, done: false, focused: false, schedHour: 11 },
-      { id: 't3', text: 'Review flashcards (30 min)', tag: 'Study', priority: 'low', dueDate: null, pomos: 2, donePomos: 2, done: false, focused: false, schedHour: 13 },
-    ];
+  },
+
+  // Save a new task to MongoDB
+  async saveTask(task) {
+    try {
+      const res = await fetch(`${API}/api/tasks`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          text: task.text,
+          priority: task.priority,
+          dueDate: task.date,
+          completed: task.done || false
+        })
+      });
+      const saved = await res.json();
+      return saved._id; // return MongoDB id
+    } catch (err) {
+      console.error('saveTask failed:', err);
+    }
+  },
+
+  // Update a task in MongoDB
+  async updateTask(id, updates) {
+    try {
+      await fetch(`${API}/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify(updates)
+      });
+    } catch (err) {
+      console.error('updateTask failed:', err);
+    }
+  },
+
+  // Delete a task from MongoDB
+  async deleteTask(id) {
+    try {
+      await fetch(`${API}/api/tasks/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+    } catch (err) {
+      console.error('deleteTask failed:', err);
+    }
+  },
+
+  // Save stats to MongoDB
+  async saveStats() {
+    try {
+      await fetch(`${API}/api/stats`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          xp: state.xp || 0,
+          streak: state.streak || 0,
+          lastActiveDate: state.lastActiveDate || null
+        })
+      });
+    } catch (err) {
+      console.error('saveStats failed:', err);
+    }
   }
-}
+};

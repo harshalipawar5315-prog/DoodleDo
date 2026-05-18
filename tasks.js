@@ -1,5 +1,5 @@
 // FIX 2: Modularise task and schedule logic
-import { saveData } from './storage.js';
+// storage is global, no import needed 
 import { updateStats, addLog, esc } from './main.js';
 import { setFocusTask } from './pomo.js';
 
@@ -12,7 +12,7 @@ export function init(sharedState) {
   state = sharedState;
 }
 
-export function addTask() {
+export async function addTask() {
   const inp = document.getElementById('task-input');
   const prioInp = document.getElementById('task-priority');
   const dateInp = document.getElementById('task-duedate');
@@ -33,35 +33,44 @@ export function addTask() {
     schedHour: null
   };
 
+  // Save to MongoDB and get real ID back
+  const mongoId = await storage.saveTask(newTask);
+  if (mongoId) newTask.id = mongoId;
+
   state.tasks.unshift(newTask);
   inp.value = '';
   dateInp.value = '';
   prioInp.value = 'medium';
   renderTasks();
-  saveData();
 }
 
-export function toggleTask(idx) {
+export async function toggleTask(idx) {
   state.tasks[idx].done = !state.tasks[idx].done;
   state.tasksDone = state.tasks.filter(t => t.done).length;
   if (state.tasks[idx].done) { state.xp += 20; addLog('✅', `Done: ${state.tasks[idx].text}`, '+20 XP'); }
+  
+  // Update in MongoDB
+  await storage.updateTask(state.tasks[idx].id, { completed: state.tasks[idx].done });
+  await storage.saveStats();
+  
   updateStats();
   renderTasks();
-  saveData();
 }
 
-export function deleteTask(idx) {
+export async function deleteTask(idx) {
   if (state.pomo.focusTaskIdx === idx) {
     state.pomo.focusTaskIdx = -1;
     document.getElementById('focus-task-display').innerHTML = '<span class="focusing-task-hint">← Click a task to focus</span>';
     document.getElementById('focus-task-display').classList.remove('has-task');
     document.getElementById('focus-progress').style.display = 'none';
   }
+
+  // Delete from MongoDB
+  await storage.deleteTask(state.tasks[idx].id);
+  
   state.tasks.splice(idx, 1);
   renderTasks();
-  saveData();
 }
-
 export function setFilter(f, btn) {
   state.filter = f;
   document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
