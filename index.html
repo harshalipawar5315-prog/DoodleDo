@@ -23,6 +23,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Auth Screen -->
+<div id="auth-screen" style="display:none;">
+  <div id="auth-box">
+    <h1>🎯 DOodleDO</h1>
+    <p id="auth-subtitle">Your study planner, everywhere.</p>
+
+    <div id="auth-tabs">
+      <button id="tab-login" class="auth-tab active" onclick="showTab('login')">Login</button>
+      <button id="tab-signup" class="auth-tab" onclick="showTab('signup')">Sign Up</button>
+    </div>
+
+    <div id="auth-form">
+      <input type="email" id="auth-email" placeholder="Email address" />
+      <input type="password" id="auth-password" placeholder="Password" />
+      <p id="auth-error"></p>
+      <button id="auth-submit" onclick="handleAuth()">Login</button>
+    </div>
+  </div>
+</div>
 
   <canvas id="vibe-canvas"></canvas>
   <div class="vibe-overlay" id="vibe-overlay"></div>
@@ -353,6 +372,7 @@
   <div id="toast"></div>
 
   <script type="module" src="main.js"></script>
+  <script src="auth.js"></script>
 </body>
 
 </html>

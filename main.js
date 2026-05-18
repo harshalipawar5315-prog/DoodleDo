@@ -471,6 +471,7 @@ export function deleteQuote(idx) {
 
 // --- INIT ---
 (function init() {
+  checkAuth();
   storage.loadData();
   // Ensure all default quotes are present (Restore deleted ones)
   if (!state.quotes) state.quotes = [];

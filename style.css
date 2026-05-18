@@ -957,3 +957,92 @@ select option {
 .stat-chip{background:rgba(12,14,22,0.7);border:1px solid var(--border);border-radius:12px;padding:10px 12px;backdrop-filter:blur(10px);text-align:center;transition:border-color var(--trans);}
 .stat-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--vibe-accent);transition:color var(--trans);line-height:1;}
 .stat-lbl{font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:0.06em;text-transform:uppercase;}
+
+/* Auth Screen */
+#auth-screen {
+  position: fixed;
+  inset: 0;
+  background: #0f0f1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#auth-box {
+  background: #1a1a2e;
+  border: 1px solid #ffffff20;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+#auth-box h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: white;
+}
+
+#auth-subtitle {
+  color: #aaa;
+  margin-bottom: 24px;
+}
+
+#auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ffffff30;
+  background: transparent;
+  color: #aaa;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.auth-tab.active {
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+#auth-form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #ffffff10;
+  border: 1px solid #ffffff20;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+#auth-error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  min-height: 20px;
+}
+
+#auth-submit {
+  width: 100%;
+  padding: 12px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#auth-submit:hover {
+  background: #6d28d9;
+}
