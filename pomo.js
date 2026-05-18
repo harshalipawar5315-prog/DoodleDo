@@ -1,7 +1,6 @@
 // FIX 2: Modularise Pomodoro logic
 import { addLog, updateStats, toast, esc } from './main.js';
 import { renderTasks } from './tasks.js';
-import { saveData } from './storage.js';
 import { setVibe, renderVibes } from './vibe.js';
 import { playAudio, updateMusicUI } from './audio.js';
 
@@ -81,7 +80,7 @@ export function onPomoComplete() {
     }
     updateStats();
     renderTasks();
-    saveData();
+    storage.saveStats();
     // toast('🎉 Session done! +50 XP earned');
     setTimeout(() => setPomoMode('short', document.querySelector('[data-m="short"]')), 1500);
     // Auto switch to chill vibe on break
