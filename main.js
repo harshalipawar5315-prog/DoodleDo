@@ -10,6 +10,10 @@ import * as vibe from './vibe.js';
 import * as pomo from './pomo.js';
 import * as tasks from './tasks.js';
 
+// Make storage globally accessible
+window.storage = storage;
+window.storage = storage;
+
 const DEFAULT_QUOTES = [
   { text: 'The focus you have today will build the life you want tomorrow.', author: '— Study Wisdom' },
   { text: 'Small steps every day lead to big changes every year.', author: '— DoodleDo' },

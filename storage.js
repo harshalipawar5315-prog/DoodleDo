@@ -104,6 +104,7 @@ const storage = {
       });
     } catch (err) {
       console.error('saveStats failed:', err);
+      window.storage = storage;
     }
   }
 };
