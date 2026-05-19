@@ -1,4 +1,4 @@
-const CACHE_NAME = 'doodledo-v2';
+const CACHE_NAME = 'doodledo-v3';
 
 // All the files your app needs to work offline
 const FILES_TO_CACHE = [
