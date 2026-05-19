@@ -53,7 +53,6 @@ export let state = {
 };
 
 // Initialize modules with state
-storage.init(state);
 audio.init(state);
 vibe.init(state);
 pomo.init(state);
