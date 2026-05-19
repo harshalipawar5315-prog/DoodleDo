@@ -14,7 +14,6 @@ export function addCustomVibe(vibe) {
   console.log('Adding custom vibe:', vibe);
   VIBES.push(vibe);
   renderVibes();
-  import('./storage.js').then(m => m.saveData()).catch(err => console.error('Error saving custom vibe:', err));
 }
 
 export function deleteCustomVibe(idx, e) {
@@ -30,7 +29,6 @@ export function deleteCustomVibe(idx, e) {
     setVibe(state.vibe);
   }
   renderVibes();
-  import('./storage.js').then(m => m.saveData());
   toast(`${v.icon} Deleted custom vibe`);
 }
 

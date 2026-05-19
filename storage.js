@@ -12,28 +12,25 @@ function authHeaders() {
 }
 
 const storage = {
-  // Load all data from MongoDB into state
-  async loadData() {
+  async loadData(state) {
     try {
-      // Load tasks
-      const res = await fetch(`${API}/api/tasks`, {
-        headers: authHeaders()
-      });
+      const res = await fetch(`${API}/api/tasks`, { headers: authHeaders() });
       if (res.ok) {
         const tasks = await res.json();
         state.tasks = tasks.map(t => ({
           id: t._id,
           text: t.text,
+          tag: t.tag || 'Study',
           priority: t.priority,
           done: t.completed,
-          date: t.dueDate
+          dueDate: t.dueDate,
+          pomos: t.pomos || 2,
+          donePomos: t.donePomos || 0,
+          focused: false,
+          schedHour: null
         }));
       }
-
-      // Load stats
-      const statsRes = await fetch(`${API}/api/stats`, {
-        headers: authHeaders()
-      });
+      const statsRes = await fetch(`${API}/api/stats`, { headers: authHeaders() });
       if (statsRes.ok) {
         const stats = await statsRes.json();
         state.xp = stats.xp || 0;
@@ -45,7 +42,6 @@ const storage = {
     }
   },
 
-  // Save a new task to MongoDB
   async saveTask(task) {
     try {
       const res = await fetch(`${API}/api/tasks`, {
@@ -54,18 +50,17 @@ const storage = {
         body: JSON.stringify({
           text: task.text,
           priority: task.priority,
-          dueDate: task.date,
+          dueDate: task.dueDate,
           completed: task.done || false
         })
       });
       const saved = await res.json();
-      return saved._id; // return MongoDB id
+      return saved._id;
     } catch (err) {
       console.error('saveTask failed:', err);
     }
   },
 
-  // Update a task in MongoDB
   async updateTask(id, updates) {
     try {
       await fetch(`${API}/api/tasks/${id}`, {
@@ -78,7 +73,6 @@ const storage = {
     }
   },
 
-  // Delete a task from MongoDB
   async deleteTask(id) {
     try {
       await fetch(`${API}/api/tasks/${id}`, {
@@ -90,8 +84,7 @@ const storage = {
     }
   },
 
-  // Save stats to MongoDB
-  async saveStats() {
+  async saveStats(state) {
     try {
       await fetch(`${API}/api/stats`, {
         method: 'POST',
@@ -104,7 +97,8 @@ const storage = {
       });
     } catch (err) {
       console.error('saveStats failed:', err);
-      window.storage = storage;
     }
   }
 };
+
+window.storage = storage;

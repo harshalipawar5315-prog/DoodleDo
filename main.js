@@ -12,7 +12,6 @@ import * as tasks from './tasks.js';
 
 // Make storage globally accessible
 window.storage = storage;
-window.storage = storage;
 
 const DEFAULT_QUOTES = [
   { text: 'The focus you have today will build the life you want tomorrow.', author: '— Study Wisdom' },
@@ -190,7 +189,6 @@ export function toggleLayoutMode() {
     text.textContent = 'Plan Mode';
     icon.textContent = '🎯';
   }
-  storage.saveData();
 }
 
 export function toggleQueue() {
@@ -455,7 +453,6 @@ export function openQuoteManager() {
       document.getElementById('qm-new-author').value = '';
       renderQMList();
       renderQuotes();
-      storage.saveData();
       toast("✨ Quote added!");
     }
   };
@@ -469,13 +466,12 @@ export function deleteQuote(idx) {
   if (state.quoteIdx >= state.quotes.length) state.quoteIdx = 0;
   renderQuotes();
   setQuote(state.quoteIdx);
-  storage.saveData();
 }
 
 // --- INIT ---
 (async function init() {
   checkAuth();
-  await storage.loadData();
+  await storage.loadData(state);
   // Ensure all default quotes are present (Restore deleted ones)
   if (!state.quotes) state.quotes = [];
   DEFAULT_QUOTES.forEach(dq => {

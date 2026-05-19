@@ -51,7 +51,7 @@ export async function toggleTask(idx) {
   
   // Update in MongoDB
   await storage.updateTask(state.tasks[idx].id, { completed: state.tasks[idx].done });
-  await storage.saveStats();
+  await storage.saveStats(state);
   
   updateStats();
   renderTasks();
@@ -331,7 +331,6 @@ export function assignTaskToHour(h) {
       state.tasks.unshift(newTask);
       renderSchedule();
       if (typeof renderTasks === 'function') renderTasks();
-      saveData();
       overlay.remove();
     }
   };
@@ -344,7 +343,6 @@ export function assignTaskToHour(h) {
     if (task) {
       task.schedHour = hour;
       renderSchedule();
-      saveData();
     }
     overlay.remove();
   };
