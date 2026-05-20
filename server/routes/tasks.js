@@ -9,13 +9,16 @@ router.get('/', auth, async (req, res) => {
     const tasks = await Task.find({ userId: req.user.id });
     res.json(tasks);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ GET tasks error:', err); // change this line
+    res.status(500).json({ message: err.message }); // change this line
   }
 });
 
 // POST /api/tasks — create a new task
 router.post('/', auth, async (req, res) => {
   try {
+    console.log('User from token:', req.user);  // add this
+    console.log('Request body:', req.body);      // add this
     const { text, priority, dueDate } = req.body;
     const task = new Task({
       userId: req.user.id,

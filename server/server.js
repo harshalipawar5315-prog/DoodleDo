@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.get('/ping', (req, res) => res.json({ status: 'awake' }));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/auth', require('./routes/auth'));

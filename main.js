@@ -469,17 +469,41 @@ export function deleteQuote(idx) {
 }
 
 // --- INIT ---
+// --- INIT ---
 (async function init() {
   checkAuth();
+
+  // Persistent loading overlay for Render cold start
+  const loader = document.createElement('div');
+  loader.id = 'wake-loader';
+  loader.style.cssText = `
+    position:fixed; inset:0; background:rgba(0,0,0,0.85);
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; z-index:9999; gap:16px;
+    font-family:'Outfit',sans-serif; color:#fff;
+  `;
+  loader.innerHTML = `
+    <div style="font-size:32px">☕</div>
+    <div style="font-size:16px; font-weight:600;">Waking up server...</div>
+    <div style="font-size:12px; opacity:0.5;">This takes ~15s on first visit</div>
+  `;
+  document.body.appendChild(loader);
+
+  try {
+    await fetch('https://doodledo-backend.onrender.com/ping');
+  } catch(e) {}
+
+  loader.remove();
+
   await storage.loadData(state);
-  // Ensure all default quotes are present (Restore deleted ones)
+
   if (!state.quotes) state.quotes = [];
   DEFAULT_QUOTES.forEach(dq => {
     if (!state.quotes.find(q => q.text === dq.text)) {
       state.quotes.push(dq);
     }
   });
-  
+
   vibe.resizeCanvas();
   window.addEventListener('resize', () => { vibe.resizeCanvas(); vibe.initParticles(); });
   vibe.initParticles();
@@ -520,6 +544,12 @@ export function deleteQuote(idx) {
     }
   });
 })();
+ 
+
+
+  
+ 
+  
 
  // Register service worker for PWA
 if ('serviceWorker' in navigator) {
