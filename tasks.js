@@ -40,7 +40,7 @@ export async function addTask() {
   state.tasks.unshift(newTask);
   inp.value = '';
   dateInp.value = '';
-  prioInp.value = 'medium';
+  prioInp.value = 'Medium';
   renderTasks();
 }
 
