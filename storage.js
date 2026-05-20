@@ -47,11 +47,11 @@ export async function saveTask(task) {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
-        text: task.text,
-        priority: task.priority,
-        dueDate: task.dueDate,
-        completed: task.done || false
-      })
+  text: task.text,
+  priority: task.priority.charAt(0).toUpperCase() + task.priority.slice(1), // capitalize
+  dueDate: task.dueDate,
+  completed: task.done || false
+})
     });
     const saved = await res.json();
     return saved._id;
