@@ -24,12 +24,18 @@ async function handleAuth() {
 
   try {
     document.getElementById('auth-submit').textContent = 'Please wait...';
+
+    const slowTimer = setTimeout(() => {
+      errorEl.textContent = '⏳ Server is waking up, please wait 30-50 seconds...';
+    }, 5000);
+
     const res = await fetch(API + endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
 
+    clearTimeout(slowTimer);
     const data = await res.json();
 
     if (!res.ok) {
@@ -38,11 +44,9 @@ async function handleAuth() {
       return;
     }
 
-    // Save token and email
     localStorage.setItem('token', data.token);
     localStorage.setItem('userEmail', data.email);
 
-    // Hide auth screen, show app
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display = '';
 
@@ -55,11 +59,9 @@ async function handleAuth() {
 function checkAuth() {
   const token = localStorage.getItem('token');
   if (token) {
-    // Already logged in — hide auth, show app
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display = '';
   } else {
-    // Not logged in — show auth, hide app
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
@@ -68,6 +70,9 @@ function checkAuth() {
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('userEmail');
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-error').textContent = '';
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
 }
