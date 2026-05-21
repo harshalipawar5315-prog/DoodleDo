@@ -24,7 +24,7 @@ export async function addTask() {
     id: 't-' + Date.now(),
     text: text,
     tag: 'Study',
-    priority: prioInp.value || 'medium',
+    priority: (prioInp.value || 'medium').toLowerCase(),
     dueDate: dateInp.value || null,
     pomos: 2,
     donePomos: 0,
@@ -33,31 +33,51 @@ export async function addTask() {
     schedHour: null
   };
 
-  // Save to MongoDB and get real ID back
-  const mongoId = await storage.saveTask(newTask);
-  if (mongoId) newTask.id = mongoId;
-
+  // Optimistic UI update: unshift and render immediately
   state.tasks.unshift(newTask);
   inp.value = '';
   dateInp.value = '';
-  prioInp.value = 'Medium';
+  prioInp.value = 'medium';
+  const selectedDiv = document.getElementById('prio-selected');
+  if (selectedDiv) selectedDiv.textContent = 'Medium';
   renderTasks();
+
+  // Save to MongoDB in background
+  try {
+    const mongoId = await storage.saveTask(newTask);
+    if (mongoId) {
+      newTask.id = mongoId;
+      renderTasks();
+    }
+  } catch (err) {
+    console.error('saveTask failed:', err);
+  }
 }
 
 export async function toggleTask(idx) {
   state.tasks[idx].done = !state.tasks[idx].done;
   state.tasksDone = state.tasks.filter(t => t.done).length;
-  if (state.tasks[idx].done) { state.xp += 20; addLog('✅', `Done: ${state.tasks[idx].text}`, '+20 XP'); }
+  if (state.tasks[idx].done) { 
+    state.xp += 20; 
+    addLog('✅', `Done: ${state.tasks[idx].text}`, '+20 XP'); 
+  }
   
-  // Update in MongoDB
-  await storage.updateTask(state.tasks[idx].id, { completed: state.tasks[idx].done });
-  await storage.saveStats(state);
-  
+  // Optimistic UI update
   updateStats();
   renderTasks();
+  
+  // Update in MongoDB in background
+  try {
+    await storage.updateTask(state.tasks[idx].id, { completed: state.tasks[idx].done });
+    await storage.saveStats(state);
+  } catch (err) {
+    console.error('toggleTask failed:', err);
+  }
 }
 
 export async function deleteTask(idx) {
+  const taskId = state.tasks[idx].id;
+
   if (state.pomo.focusTaskIdx === idx) {
     state.pomo.focusTaskIdx = -1;
     document.getElementById('focus-task-display').innerHTML = '<span class="focusing-task-hint">← Click a task to focus</span>';
@@ -65,11 +85,16 @@ export async function deleteTask(idx) {
     document.getElementById('focus-progress').style.display = 'none';
   }
 
-  // Delete from MongoDB
-  await storage.deleteTask(state.tasks[idx].id);
-  
+  // Optimistic UI update
   state.tasks.splice(idx, 1);
   renderTasks();
+
+  // Delete from MongoDB in background
+  try {
+    await storage.deleteTask(taskId);
+  } catch (err) {
+    console.error('deleteTask failed:', err);
+  }
 }
 export function setFilter(f, btn) {
   state.filter = f;
@@ -103,7 +128,9 @@ export function getFilteredTasks() {
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
-      return prioMap[b.priority] - prioMap[a.priority];
+      const aPrio = (a.priority || 'medium').toLowerCase();
+      const bPrio = (b.priority || 'medium').toLowerCase();
+      return prioMap[bPrio] - prioMap[aPrio];
     });
   }
 
@@ -158,7 +185,7 @@ export function taskCardHTML(t) {
         <div class="task-body">
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="task-title">${esc(t.text)}</div>
-            <span class="priority-badge priority-${t.priority}">${t.priority}</span>
+            <span class="priority-badge priority-${(t.priority || 'medium').toLowerCase()}">${(t.priority || 'medium').charAt(0).toUpperCase() + (t.priority || 'medium').slice(1)}</span>
           </div>
           <div class="task-meta">
             <span class="task-tag">${esc(t.tag)}</span>

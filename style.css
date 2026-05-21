@@ -1046,3 +1046,128 @@ select option {
 #auth-submit:hover {
   background: #6d28d9;
 }
+
+/* Profile Panel */
+#profile-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+}
+
+#profile-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+
+#profile-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background: #1a1a2e;
+  border-left: 1px solid #ffffff15;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: white;
+  flex-shrink: 0;
+}
+
+#profile-email {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+#profile-joined {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+#profile-stats {
+  display: flex;
+  gap: 12px;
+  background: #ffffff08;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #ffffff10;
+}
+
+.profile-stat {
+  flex: 1;
+  text-align: center;
+}
+
+.profile-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  font-family: 'Space Mono', monospace;
+}
+
+.profile-stat-lbl {
+  font-size: 10px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+#profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff08;
+  border: 1px solid #ffffff10;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.profile-menu-item:hover {
+  background: #ffffff15;
+}
+
+.profile-menu-item.danger {
+  color: #ff6b6b;
+  border-color: #ff6b6b20;
+}
+
+.profile-menu-item.danger:hover {
+  background: #ff6b6b15;
+}

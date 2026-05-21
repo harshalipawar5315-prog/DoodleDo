@@ -100,7 +100,7 @@
       <button class="top-icon" id="fullscreen-toggle" title="Fullscreen" onclick="toggleFullscreen()" aria-label="Toggle Fullscreen">⛶</button>
       <button class="top-icon" title="Brightness" onclick="toggleDim()" aria-label="Toggle Dim Mode">☀</button>
       <button class="top-icon" id="vol-toggle" title="Sound" onclick="toggleMusicPlay()" aria-label="Toggle Sound">🔊</button>
-      <div class="avatar" id="avatar">YO</div>
+      <div class="avatar" id="avatar" onclick="openProfile()" title="Profile">🌸</div>
     </header>
 
     <!-- ══ VIBE SIDEBAR ══ -->
@@ -363,6 +363,42 @@
         <div id="queue-list"></div>
       </div>
     </footer>
+  
+  <!-- Profile Panel -->
+<div id="profile-panel" style="display:none;">
+  <div id="profile-overlay" onclick="closeProfile()"></div>
+  <div id="profile-drawer">
+    <div id="profile-header">
+      <div id="profile-avatar">🌸</div>
+      <div>
+        <div id="profile-email">user@email.com</div>
+        <div id="profile-joined">Member since today</div>
+      </div>
+    </div>
+    <div id="profile-stats">
+      <div class="profile-stat">
+        <div class="profile-stat-val" id="profile-xp">0</div>
+        <div class="profile-stat-lbl">XP</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-val" id="profile-streak">0</div>
+        <div class="profile-stat-lbl">Streak</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-val" id="profile-tasks">0</div>
+        <div class="profile-stat-lbl">Tasks Done</div>
+      </div>
+    </div>
+    <div id="profile-menu">
+      <button class="profile-menu-item" onclick="closeProfile()">
+        <span>🎯</span> Back to App
+      </button>
+      <button class="profile-menu-item danger" onclick="logout()">
+        <span>🚪</span> Logout
+      </button>
+    </div>
+  </div>
+</div>
 
   </div><!-- #app -->
 

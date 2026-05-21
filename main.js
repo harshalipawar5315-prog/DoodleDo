@@ -263,6 +263,8 @@ window.changeMonth = tasks.changeMonth;
 window.togglePriorityMenu = togglePriorityMenu;
 window.setPriority = setPriority;
 window.toggleFullscreen = toggleFullscreen;
+window.openProfile = openProfile;
+window.closeProfile = closeProfile;
 
 export function toggleFullscreen() {
   if (!document.fullscreenElement) {
@@ -274,6 +276,21 @@ export function toggleFullscreen() {
       document.exitFullscreen();
     }
   }
+}
+
+export function openProfile() {
+  const email = localStorage.getItem('userEmail') || 'user@email.com';
+  const initials = email.substring(0, 2).toUpperCase();
+  document.getElementById('profile-avatar').textContent = initials;
+  document.getElementById('profile-email').textContent = email;
+  document.getElementById('profile-xp').textContent = state.xp;
+  document.getElementById('profile-streak').textContent = state.streak;
+  document.getElementById('profile-tasks').textContent = state.tasksDone;
+  document.getElementById('profile-panel').style.display = 'block';
+}
+
+export function closeProfile() {
+  document.getElementById('profile-panel').style.display = 'none';
 }
 
 document.addEventListener('fullscreenchange', () => {

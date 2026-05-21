@@ -20,7 +20,7 @@ export async function loadData(state) {
         id: t._id,
         text: t.text,
         tag: t.tag || 'Study',
-        priority: t.priority,
+        priority: (t.priority || 'medium').toLowerCase(),
         done: t.completed,
         dueDate: t.dueDate,
         pomos: t.pomos || 2,
