@@ -466,6 +466,8 @@ export function openQuoteManager() {
     const author = document.getElementById('qm-new-author').value.trim() || '— Unknown';
     if (text) {
       state.quotes.push({ text, author });
+      localStorage.setItem('doodledo_quotes', JSON.stringify(state.quotes));
+      if (window.storage) window.storage.saveStats(state);
       document.getElementById('qm-new-text').value = '';
       document.getElementById('qm-new-author').value = '';
       renderQMList();
@@ -480,6 +482,8 @@ export function deleteQuote(idx) {
   if (state.quotes.length === 0) {
     state.quotes = [...DEFAULT_QUOTES];
   }
+  localStorage.setItem('doodledo_quotes', JSON.stringify(state.quotes));
+  if (window.storage) window.storage.saveStats(state);
   if (state.quoteIdx >= state.quotes.length) state.quoteIdx = 0;
   renderQuotes();
   setQuote(state.quoteIdx);
@@ -514,12 +518,23 @@ export function deleteQuote(idx) {
 
   await storage.loadData(state);
 
-  if (!state.quotes) state.quotes = [];
-  DEFAULT_QUOTES.forEach(dq => {
-    if (!state.quotes.find(q => q.text === dq.text)) {
-      state.quotes.push(dq);
+  const localQuotes = localStorage.getItem('doodledo_quotes');
+  if (localQuotes) {
+    try {
+      state.quotes = JSON.parse(localQuotes);
+    } catch(e) {
+      state.quotes = [...DEFAULT_QUOTES];
     }
-  });
+  } else {
+    state.quotes = [...DEFAULT_QUOTES];
+  }
+
+  // Apply server quotes if fetched
+  if (state.serverQuotes && state.serverQuotes.length > 0) {
+    // Basic merge: favor server quotes
+    state.quotes = state.serverQuotes;
+    localStorage.setItem('doodledo_quotes', JSON.stringify(state.quotes));
+  }
 
   vibe.resizeCanvas();
   window.addEventListener('resize', () => { vibe.resizeCanvas(); vibe.initParticles(); });

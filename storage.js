@@ -13,6 +13,21 @@ function authHeaders() {
 
 export async function loadData(state) {
   try {
+    const localTasks = localStorage.getItem('doodledo_tasks');
+    if (localTasks) {
+      try { state.tasks = JSON.parse(localTasks); } catch (e) {}
+    }
+    
+    const localStats = localStorage.getItem('doodledo_stats');
+    if (localStats) {
+      try {
+        const stats = JSON.parse(localStats);
+        state.xp = stats.xp || 0;
+        state.streak = stats.streak || 0;
+        state.lastActiveDate = stats.lastActiveDate || null;
+      } catch (e) {}
+    }
+
     const res = await fetch(`${API}/api/tasks`, { headers: authHeaders() });
     if (res.ok) {
       const tasks = await res.json();
@@ -28,16 +43,22 @@ export async function loadData(state) {
         focused: false,
         schedHour: null
       }));
+      localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
     }
-    const statsRes = await fetch(`${API}/api/stats`, { headers: authHeaders() });
-    if (statsRes.ok) {
-      const stats = await statsRes.json();
-      state.xp = stats.xp || 0;
-      state.streak = stats.streak || 0;
-      state.lastActiveDate = stats.lastActiveDate || null;
-    }
+      const statsRes = await fetch(`${API}/api/stats`, { headers: authHeaders() });
+      if (statsRes.ok) {
+        const stats = await statsRes.json();
+        state.xp = stats.xp || 0;
+        state.streak = stats.streak || 0;
+        state.lastActiveDate = stats.lastActiveDate || null;
+        if (stats.quotes && stats.quotes.length > 0) state.serverQuotes = stats.quotes;
+        if (stats.customVibes && stats.customVibes.length > 0) state.serverVibes = stats.customVibes;
+        localStorage.setItem('doodledo_stats', JSON.stringify({
+          xp: state.xp, streak: state.streak, lastActiveDate: state.lastActiveDate
+        }));
+      }
   } catch (err) {
-    console.error('loadData failed:', err);
+    console.error('loadData fetch failed (offline fallback active):', err);
   }
 }
 
@@ -85,13 +106,17 @@ export async function deleteTask(id) {
 
 export async function saveStats(state) {
   try {
+    const customVibes = window.vibe ? window.vibe.VIBES.filter(v => String(v.id).startsWith('custom-')) : state.customVibes || [];
+    
     await fetch(`${API}/api/stats`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
         xp: state.xp || 0,
         streak: state.streak || 0,
-        lastActiveDate: state.lastActiveDate || null
+        lastActiveDate: state.lastActiveDate || null,
+        quotes: state.quotes || [],
+        customVibes: customVibes
       })
     });
   } catch (err) {

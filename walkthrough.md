@@ -31,3 +31,6 @@ The app now uses a 3-column grid for maximum efficiency:
 
 > [!IMPORTANT]
 > To hear the ambient sounds, make sure to interact with the page once (click anywhere) to allow the browser's audio context to start!
+
+## 📱 Mobile Experience
+On mobile devices, the app seamlessly transitions into a vertically stacked layout to maximize screen space while retaining the full immersive experience. All panels are accessible via a continuous scroll.

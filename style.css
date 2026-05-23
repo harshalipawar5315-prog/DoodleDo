@@ -904,40 +904,56 @@ select option {
   :root {
     --music-h: 70px;
   }
-  #app{
-    grid-template-columns: 1fr !important;
-    grid-template-rows: var(--top-h) 1fr 60px var(--music-h) !important;
-    height: 100vh;
+  
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 100vh;
   }
+
+  #app {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 100vh;
+    padding-bottom: calc(var(--music-h) + 20px) !important;
+  }
+  
+  #topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-shrink: 0;
+  }
+
   #topbar .logo-sub-text { display: none; }
   #topbar .xp-badge { font-size: 11px; gap: 4px; }
   
-  /* Reset desktop layout behaviors for mobile */
-  #app.plan-mode #center, 
-  #app.focus-mode #planner,
-  #app.focus-mode #vibe-sidebar { 
-    display: none !important; 
-  }
-
+  /* Show all panels stacked vertically, overriding plan/focus modes */
   #vibe-sidebar, #center, #planner {
-    display: none !important;
-    position: static;
+    display: flex !important;
+    position: relative;
     width: 100% !important;
-    height: 100% !important;
-    overflow-y: auto;
+    height: auto !important;
+    min-height: 400px;
     opacity: 1 !important;
     transform: none !important;
     padding: 20px;
-    padding-bottom: 100px;
     border: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    overflow: visible !important;
+  }
+
+  #music-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
   }
   
-  /* Mobile Tab Logic - Force Display */
-  #app.m-show-vibes #vibe-sidebar { display: flex !important; }
-  #app.m-show-focus #center { display: block !important; }
-  #app.m-show-plan #planner { display: block !important; }
-  
-  #mobile-nav { display: flex; }
+  #mobile-nav { display: none !important; }
   
   /* Adjust music bar */
   .vol-slider, .vol-icon, .music-track-info { display: none; }

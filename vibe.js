@@ -10,9 +10,34 @@ export let VIBES = [
   { id: 'peace', label: 'Peace', icon: '🕊️', bg: ['#0a1a1a', '#0f2525', '#1a3535'], accent: '#a5f3fc', accent2: '#22d3ee', glow: 'rgba(165,243,252,0.18)', particle: 'rgba(165,243,252,0.6)', tracks: [{ title: 'Morning Birds', artist: 'Nature', icon: '🕊️', dur: 300 }, { title: 'Zen Garden', artist: 'Peaceful', icon: '🧘', dur: 240 }], synthType: 'file', file: 'birds.mp3' },
 ];
 
+function saveCustomVibes() {
+  const customVibes = VIBES.filter(v => String(v.id).startsWith('custom-'));
+  localStorage.setItem('doodledo_vibes', JSON.stringify(customVibes));
+}
+
+function loadCustomVibes() {
+  try {
+    const local = localStorage.getItem('doodledo_vibes');
+    if (local) {
+      const customVibes = JSON.parse(local);
+      if (state) state.customVibes = customVibes;
+      customVibes.forEach(cv => VIBES.push(cv));
+    }
+  } catch(e) {
+    console.error('Failed to load custom vibes', e);
+  }
+}
+
+loadCustomVibes();
+
 export function addCustomVibe(vibe) {
   console.log('Adding custom vibe:', vibe);
   VIBES.push(vibe);
+  saveCustomVibes();
+  if (state) {
+    state.customVibes = VIBES.filter(v => String(v.id).startsWith('custom-'));
+    if (window.storage) window.storage.saveStats(state);
+  }
   renderVibes();
 }
 
@@ -24,6 +49,11 @@ export function deleteCustomVibe(idx, e) {
     return;
   }
   VIBES.splice(idx, 1);
+  saveCustomVibes();
+  if (state) {
+    state.customVibes = VIBES.filter(v => String(v.id).startsWith('custom-'));
+    if (window.storage) window.storage.saveStats(state);
+  }
   if (state.vibe >= idx) {
     state.vibe = Math.max(0, state.vibe - 1);
     setVibe(state.vibe);
@@ -39,6 +69,18 @@ let particles = [], animId;
 
 export function init(sharedState) {
   state = sharedState;
+  
+  // Apply server vibes if loaded
+  if (state.serverVibes && state.serverVibes.length > 0) {
+    const existingIds = new Set(VIBES.map(v => v.id));
+    state.serverVibes.forEach(cv => {
+      if (!existingIds.has(cv.id)) {
+        VIBES.push(cv);
+      }
+    });
+    saveCustomVibes();
+    state.customVibes = VIBES.filter(v => String(v.id).startsWith('custom-'));
+  }
 }
 
 export function resizeCanvas() {

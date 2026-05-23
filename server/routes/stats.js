@@ -11,26 +11,36 @@ router.get('/', auth, async (req, res) => {
     res.json({
       xp: user.xp,
       streak: user.streak,
-      lastActiveDate: user.lastActiveDate
+      lastActiveDate: user.lastActiveDate,
+      quotes: user.quotes,
+      customVibes: user.customVibes
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// POST /api/stats — update XP and streak
+// POST /api/stats — update XP, streak, and settings
 router.post('/', auth, async (req, res) => {
   try {
-    const { xp, streak, lastActiveDate } = req.body;
+    const { xp, streak, lastActiveDate, quotes, customVibes } = req.body;
+    
+    // Create an update object with only defined fields
+    const updateData = { xp, streak, lastActiveDate };
+    if (quotes !== undefined) updateData.quotes = quotes;
+    if (customVibes !== undefined) updateData.customVibes = customVibes;
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { xp, streak, lastActiveDate },
+      updateData,
       { new: true }
     ).select('-password');
     res.json({
       xp: user.xp,
       streak: user.streak,
-      lastActiveDate: user.lastActiveDate
+      lastActiveDate: user.lastActiveDate,
+      quotes: user.quotes,
+      customVibes: user.customVibes
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

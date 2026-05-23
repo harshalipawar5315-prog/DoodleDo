@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   xp: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
   lastActiveDate: { type: String, default: null },
+  quotes: { type: Array, default: [] },
+  customVibes: { type: Array, default: [] },
   createdAt: { type: Date, default: Date.now }
 });
 

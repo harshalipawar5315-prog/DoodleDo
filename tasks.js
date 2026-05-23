@@ -35,6 +35,7 @@ export async function addTask() {
 
   // Optimistic UI update: unshift and render immediately
   state.tasks.unshift(newTask);
+  localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
   inp.value = '';
   dateInp.value = '';
   prioInp.value = 'medium';
@@ -64,6 +65,8 @@ export async function toggleTask(idx) {
   
   // Optimistic UI update
   updateStats();
+  localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
+  localStorage.setItem('doodledo_stats', JSON.stringify({ xp: state.xp, streak: state.streak, lastActiveDate: state.lastActiveDate }));
   renderTasks();
   
   // Update in MongoDB in background
@@ -87,6 +90,7 @@ export async function deleteTask(idx) {
 
   // Optimistic UI update
   state.tasks.splice(idx, 1);
+  localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
   renderTasks();
 
   // Delete from MongoDB in background
@@ -356,6 +360,7 @@ export function assignTaskToHour(h) {
         schedHour: h
       };
       state.tasks.unshift(newTask);
+      localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
       renderSchedule();
       if (typeof renderTasks === 'function') renderTasks();
       overlay.remove();
@@ -369,6 +374,7 @@ export function assignTaskToHour(h) {
     const task = state.tasks.find(t => t.text === taskText);
     if (task) {
       task.schedHour = hour;
+      localStorage.setItem('doodledo_tasks', JSON.stringify(state.tasks));
       renderSchedule();
     }
     overlay.remove();
